@@ -335,7 +335,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _generate(ImageItem image, {required bool syncEditor}) async {
     final settings = _settings();
     if (settings.baseUrl.isEmpty) {
-      setState(() => log = 'Isi Base URL 9router terlebih dahulu.');
+      setState(() => log = 'Isi Base URL API terlebih dahulu.');
       return;
     }
     setState(() {
@@ -805,7 +805,7 @@ class _HomePageState extends State<HomePage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Settings 9router', style: Theme.of(context).textTheme.titleLarge),
+            Text('Settings AI API', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             TextField(controller: baseUrlCtrl, decoration: const InputDecoration(labelText: 'Base URL, contoh http://host:port/v1', border: OutlineInputBorder())),
             const SizedBox(height: 10),

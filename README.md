@@ -1,11 +1,21 @@
 # Microstock Metadata AI
 
-Aplikasi desktop Flutter untuk membuat metadata gambar microstock menggunakan API 9router/OpenAI-compatible.
+Aplikasi desktop Flutter untuk membuat metadata gambar microstock menggunakan API AI OpenAI-compatible.
+
+## Dukungan Platform
+
+Aplikasi ini bisa berjalan di:
+
+- Linux desktop.
+- Windows 10/11.
+
+Project Flutter sudah memiliki folder `linux/` dan `windows/`, jadi bisa dibuild untuk kedua platform selama Flutter desktop support dan toolchain OS tersebut sudah terpasang.
 
 ## Fitur Utama
 
 - Import gambar `JPG`, `JPEG`, `JFIF`, `PNG`, dan `WEBP`.
 - Import folder gambar secara batch.
+- Fallback import manual dari path file/folder.
 - Preview gambar, ukuran file, resolusi, dan status proses.
 - Generate metadata AI: title, description, keywords, category, editorial, commercial use, AI generated, warnings.
 - Edit metadata manual.
@@ -17,9 +27,9 @@ Aplikasi desktop Flutter untuk membuat metadata gambar microstock menggunakan AP
 - Retry gambar yang gagal.
 - Remove selected import atau remove semua import dari library tanpa menghapus file di disk.
 - Export CSV.
-- Settings API 9router dan prompt template tersimpan lokal.
+- Settings API dan prompt template tersimpan lokal.
 
-## Menjalankan Aplikasi
+## Menjalankan di Linux
 
 ```bash
 cd /home/kaligata77/Android/apps/tester
@@ -27,15 +37,47 @@ flutter pub get
 flutter run -d linux
 ```
 
-Untuk build Linux:
+Build release Linux:
 
 ```bash
 flutter build linux
 ```
 
-## Import Gambar di Linux
+Output build Linux biasanya ada di:
 
-Tombol `Import` dan `Folder` memakai dialog file native. Di beberapa Linux desktop, dialog ini membutuhkan `zenity` atau `kdialog`.
+```text
+build/linux/x64/release/bundle/
+```
+
+## Menjalankan di Windows
+
+Jalankan dari mesin Windows dengan Flutter SDK terpasang:
+
+```powershell
+cd path\to\tester
+flutter pub get
+flutter run -d windows
+```
+
+Build release Windows:
+
+```powershell
+flutter build windows
+```
+
+Output build Windows biasanya ada di:
+
+```text
+build\windows\x64\runner\Release\
+```
+
+Catatan: build Windows sebaiknya dilakukan di Windows karena membutuhkan Visual Studio Build Tools dengan workload C++ desktop.
+
+## Import Gambar
+
+Tombol `Import` dan `Folder` memakai dialog file native.
+
+Jika dialog import gagal di Linux, install dialog helper:
 
 Fedora:
 
@@ -49,11 +91,45 @@ Ubuntu/Debian:
 sudo apt install -y zenity
 ```
 
-Jika dialog import gagal, gunakan field `Import path fallback` di panel `Library`:
+Alternatif tanpa dialog native:
 
-- Isi path folder, contoh `/home/user/Pictures`.
-- Atau isi path file, contoh `/home/user/Pictures/image001.jpg`.
+- Isi field `Import path fallback` di panel `Library`.
+- Masukkan path folder, contoh `/home/user/Pictures`.
+- Atau path file, contoh `/home/user/Pictures/image001.jpg`.
 - Klik `Import Path`.
+
+Di Windows, isi path manual bisa memakai format seperti:
+
+```text
+C:\Users\User\Pictures
+```
+
+## Konfigurasi API AI
+
+Aplikasi mendukung API AI yang kompatibel dengan format OpenAI Chat Completions.
+
+Isi panel `Settings AI API`:
+
+- `Base URL`: contoh `http://localhost:8000/v1` atau URL provider API lain.
+- `API Key`: isi jika provider membutuhkan token.
+- `Model`: nama model vision yang dipakai.
+- `Timeout`: batas waktu request dalam detik.
+- `Retry`: jumlah retry otomatis.
+- `Max keywords`: batas maksimal keyword validasi.
+
+Endpoint yang dipakai:
+
+```text
+POST /chat/completions
+```
+
+Jika `Base URL` sudah berakhiran `/v1`, aplikasi otomatis memanggil:
+
+```text
+/v1/chat/completions
+```
+
+Model yang dipakai harus mendukung input gambar/vision.
 
 ## Install ExifTool
 
@@ -71,53 +147,32 @@ Ubuntu/Debian:
 sudo apt install -y libimage-exiftool-perl
 ```
 
-Cek instalasi:
+Windows:
 
-```bash
+- Download ExifTool dari `https://exiftool.org/`.
+- Pastikan executable `exiftool` tersedia di `PATH`.
+- Cek dari terminal:
+
+```powershell
 exiftool -ver
 ```
 
-## Pengaturan API 9router
-
-Isi panel `Settings 9router`:
-
-- `Base URL`: contoh `http://192.168.x.x:xxxxx/v1`
-- `API Key`: isi jika API membutuhkan token.
-- `Model`: model vision yang dipakai, contoh `gpt-5.5`.
-- `Timeout`: batas waktu request dalam detik.
-- `Retry`: jumlah retry otomatis.
-- `Max keywords`: batas maksimal keyword validasi.
-
-Klik `Test` untuk cek koneksi. Endpoint yang dipakai adalah OpenAI-compatible:
-
-```text
-POST /chat/completions
-```
-
-Jika Base URL sudah berakhiran `/v1`, aplikasi otomatis memanggil `/v1/chat/completions`.
-
 ## Alur Single Image
 
-1. Klik `Import`.
-2. Pilih gambar.
-3. Pilih gambar di `Library`.
-4. Klik `Generate` atau `Regenerate`.
-5. Review dan edit metadata.
-6. Klik `Save metadata` untuk menyimpan lokal.
-7. Klik `Rename file` jika ingin membuat atau mengganti nama file output di folder `microstock_output`.
-8. Klik `Write to file` untuk menulis metadata ke file output di folder `microstock_output`.
-9. Klik `Export CSV` jika ingin export spreadsheet.
+1. Klik `Import` atau isi `Import path fallback` lalu klik `Import Path`.
+2. Pilih gambar di `Library`.
+3. Klik `Generate` atau `Regenerate`.
+4. Review dan edit metadata.
+5. Klik `Save metadata` untuk menyimpan lokal.
+6. Klik `Rename file` jika ingin membuat atau mengganti nama file output di folder `microstock_output`.
+7. Klik `Write to file` untuk menulis metadata ke file output di folder `microstock_output`.
+8. Klik `Export CSV` jika ingin export spreadsheet.
 
 ## Rename File
 
 `Rename file` tidak mengubah file original. Jika gambar masih original, aplikasi membuat satu file output di folder `microstock_output`. Jika gambar sudah berada di `microstock_output`, aplikasi me-rename file output yang sama, bukan membuat duplikat baru.
 
-Ada dua cara rename output:
-
-- Edit field `Filename`, lalu klik `Rename file`.
-- Biarkan `Filename` sama, isi `Title`, lalu klik `Rename file`. Aplikasi membuat nama file otomatis dari title.
-
-Contoh:
+Contoh title:
 
 ```text
 Fresh Vegetables on Wooden Table
@@ -147,11 +202,11 @@ Tag yang ditulis:
 
 File original tidak diubah. Jika file yang sedang dipilih belum berada di folder `microstock_output`, aplikasi menyalinnya dulu satu kali, lalu menulis metadata pada file output tersebut. Jika file sudah berada di `microstock_output`, aplikasi menulis ke file yang sama dan tidak membuat duplikat baru.
 
-Catatan: aplikasi menjalankan `exiftool` dengan `-overwrite_original`, sehingga tidak membuat file backup `_original` di folder output. File original tetap aman karena metadata hanya ditulis ke file di `microstock_output`.
+Aplikasi menjalankan `exiftool` dengan `-overwrite_original`, sehingga tidak membuat file backup `_original` di folder output.
 
 ## Alur Batch
 
-1. Klik `Folder` atau `Import` untuk memasukkan banyak gambar.
+1. Klik `Folder`, `Import`, atau gunakan `Import Path`.
 2. Isi settings API.
 3. Klik `Batch` untuk generate metadata banyak gambar.
 4. Review hasil yang statusnya `Perlu review` atau `Gagal`.
@@ -167,17 +222,15 @@ Catatan: aplikasi menjalankan `exiftool` dengan `-overwrite_original`, sehingga 
 
 Kedua aksi ini tidak menghapus file gambar di disk.
 
-## Apakah Batch Langsung Rename dan Write Metadata?
+## Catatan Batch
 
-Tidak otomatis saat tombol `Batch` ditekan.
-
-Alasannya: rename dan write metadata tetap merupakan aksi perubahan file, walaupun sekarang dilakukan pada file output di folder `microstock_output`. Karena itu aplikasi memisahkan aksi batch menjadi tiga tombol:
+Tombol `Batch` tidak otomatis rename dan write metadata.
 
 - `Batch`: hanya generate metadata dan simpan lokal.
 - `Batch Rename`: buat file output jika belum ada, atau rename file output yang sudah ada, berdasarkan title metadata.
 - `Batch Write`: buat file output jika belum ada, lalu tulis metadata; jika sudah ada, tulis ke file output yang sama.
 
-Ini lebih aman karena pengguna bisa review metadata sebelum membuat file output, file original tetap utuh, dan proses berikutnya tidak membuat duplikat baru.
+File original tetap utuh, dan proses berikutnya tidak membuat duplikat baru.
 
 ## Penyimpanan Lokal
 
@@ -196,19 +249,14 @@ Aplikasi memberi status review jika:
 
 ## Troubleshooting
 
-Jika `Write to file` gagal dengan pesan `exiftool tidak ditemukan`, install `exiftool` sesuai OS.
+Jika `Write to file` gagal dengan pesan `exiftool tidak ditemukan`, install `exiftool` dan pastikan tersedia di `PATH`.
 
 Jika generate gagal, cek:
 
 - Base URL benar.
-- API key benar.
+- API key benar jika diperlukan.
 - Model mendukung vision/image input.
 - Endpoint compatible dengan `/chat/completions`.
 - Timeout cukup besar.
 
-Jika rename gagal, cek:
-
-- File original masih ada.
-- File tidak sedang dibuka aplikasi lain.
-- Folder punya permission write.
-- Nama file tidak mengandung `/` atau `\`.
+Jika import skip semua file, cek log di bagian bawah aplikasi. Log akan menampilkan alasan seperti duplicate, unsupported extension, missing, atau error.
